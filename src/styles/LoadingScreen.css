@@ -1,0 +1,19 @@
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.loadingImg {
+  width: 60px;
+  animation: rotation 1s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
