@@ -1,6 +1,6 @@
 import "../styles/PlayerHand.css";
 
-export default function PlayerHand({ playerCards, dealCard }) {
+export default function PlayerHand({ playerCards, playLogic }) {
   function PrintCard(card) {
     let suitIcon;
     let style;
@@ -43,9 +43,6 @@ export default function PlayerHand({ playerCards, dealCard }) {
   return (
     <div className="playerHandContainer">
       {playerCards.map((card) => PrintCard(card))}
-      <button className="dealCardBtn" onClick={() => dealCard("Player1")}>
-        Deal Card
-      </button>
     </div>
   );
 }
