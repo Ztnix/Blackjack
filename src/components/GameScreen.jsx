@@ -1,5 +1,6 @@
 import PlayerHand from "./PlayerHand";
 import CPUHand from "./CPUHand";
+import Scoreboard from "./Scoreboard";
 import { useState, useEffect, useRef } from "react";
 import cardDeckData from "./CardData";
 import "../styles/GameScreen.css";
@@ -12,34 +13,38 @@ export default function GameScreen() {
 
   let randomCard;
   let totalPlayerHandValue = player1Hand
-    .map((card) => card.number)
+    .map((card) => card.value)
     .reduce((prev, curr) => prev + curr, 0);
   let totalCPUHandValue = cpuHand
-    .map((card) => card.number)
+    .map((card) => card.value)
     .reduce((prev, curr) => prev + curr, 0);
   const didRun = useRef(false);
 
   useEffect(() => {
     if (!didRun.current) {
-      dealCard("Player1");
-      dealCard("Player2");
-      dealCard("Player1");
-      dealCard("Player2");
+      dealInitialCards();
       didRun.current = true;
     }
-  }, []);
+  });
 
   useEffect(() => {
+    //Player Busts
     if (totalPlayerHandValue > 21) {
       setGameState("¡You Lost!");
-    } else if (
-      totalPlayerHandValue === totalCPUHandValue &&
-      player1Hand.length === 2 &&
-      cpuHand.length === 2
-    ) {
-      setGameState("¡Tie!");
     }
-  }, [totalPlayerHandValue, totalCPUHandValue]);
+    //Showdown
+    if (gameState === "Showdown" && totalCPUHandValue >= 17) {
+      if (totalCPUHandValue > 21) {
+        setGameState("¡You Won");
+      } else if (totalPlayerHandValue < totalCPUHandValue) {
+        setGameState("¡You Lost!");
+      } else if (totalPlayerHandValue > totalCPUHandValue) {
+        setGameState("¡You Won");
+      }
+    } else if (gameState === "Showdown" && totalCPUHandValue < 17) {
+      dealCard("CPU");
+    }
+  }, [gameState, totalPlayerHandValue, totalCPUHandValue]);
 
   function getRandomCard() {
     randomCard = Math.floor(Math.random() * cardDeck.length);
@@ -77,33 +82,33 @@ export default function GameScreen() {
     setCardDeck(newDeck);
   }
 
-  function playLogic(player) {
-    dealCard(player);
+  function resetGame() {
+    setPlayer1Hand([]);
+    setCPUHand([]);
+    setGameState("In Play");
+    setCardDeck(cardDeckData);
+    dealInitialCards();
   }
 
-  function playCPULogic() {}
+  function dealInitialCards() {
+    dealCard("Player1");
+    dealCard("Player2");
+    dealCard("Player1");
+    dealCard("Player2");
+  }
 
   return (
     <div className="gameContainer">
-      <CPUHand cpuCards={cpuHand} playLogic={playLogic} />
-      <div className="scoreboard">
-        <div className="playerScore">
-          <p>Your Score:</p>
-          {totalPlayerHandValue}
-        </div>
-        <button className="dealCardBtn" onClick={() => playLogic("Player1")}>
-          Deal
-        </button>
-        <div className="gameState">{gameState}</div>
-        <button className="standBtn" onClick={() => playCPULogic()}>
-          Stand
-        </button>
-        <div className="CPUScore">
-          <p>CPU Score:</p>
-          {totalCPUHandValue}
-        </div>
-      </div>
-      <PlayerHand playerCards={player1Hand} playLogic={playLogic} />
+      <CPUHand cpuCards={cpuHand} />
+      <Scoreboard
+        totalCPUHandValue={totalCPUHandValue}
+        totalPlayerHandValue={totalPlayerHandValue}
+        gameState={gameState}
+        dealCard={dealCard}
+        resetGame={resetGame}
+        setGameState={setGameState}
+      />
+      <PlayerHand playerCards={player1Hand} />
     </div>
   );
 }

@@ -38,3 +38,11 @@ button {
   align-items: center;
   font-size: 3.2rem;
 }
+
+.cpuHandContainer,
+.playerHandContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 47%;
+}
