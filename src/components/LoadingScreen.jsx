@@ -6,7 +6,7 @@ export default function LoadingScreen({ handleScreenStateChange }) {
   useEffect(() => {
     let countdown = setInterval(() => {
       handleScreenStateChange("gameScreen");
-    }, 100);
+    }, 1000);
 
     return () => clearInterval(countdown);
   }, [handleScreenStateChange]);

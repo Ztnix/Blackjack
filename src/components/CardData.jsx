@@ -1,6 +1,6 @@
 const cardDeckData = [
   {
-    value: 1,
+    value: 11,
     name: "A",
     dealt: false,
     suit: "heart",
@@ -79,7 +79,7 @@ const cardDeckData = [
   },
   //Spades
   {
-    value: 1,
+    value: 11,
     name: "A",
     dealt: false,
     suit: "spade",
@@ -158,7 +158,7 @@ const cardDeckData = [
   },
   //Clubs
   {
-    value: 1,
+    value: 11,
     name: "A",
     dealt: false,
     suit: "club",
@@ -237,7 +237,7 @@ const cardDeckData = [
   },
   //Diamonds
   {
-    value: 1,
+    value: 11,
     name: "A",
     dealt: false,
     suit: "diamond",

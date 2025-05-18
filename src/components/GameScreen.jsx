@@ -1,7 +1,7 @@
 import PlayerHand from "./PlayerHand";
 import CPUHand from "./CPUHand";
 import Scoreboard from "./Scoreboard";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import cardDeckData from "./CardData";
 import "../styles/GameScreen.css";
 
@@ -10,15 +10,29 @@ export default function GameScreen() {
   const [player1Hand, setPlayer1Hand] = useState([]);
   const [cpuHand, setCPUHand] = useState([]);
   const [gameState, setGameState] = useState("In Play");
-
   let randomCard;
-  let totalPlayerHandValue = player1Hand
-    .map((card) => card.value)
-    .reduce((prev, curr) => prev + curr, 0);
-  let totalCPUHandValue = cpuHand
-    .map((card) => card.value)
-    .reduce((prev, curr) => prev + curr, 0);
   const didRun = useRef(false);
+
+  const totalPlayerHandValue = useMemo(
+    () => computeHandValue(player1Hand),
+    [player1Hand]
+  );
+
+  const totalCPUHandValue = useMemo(() => computeHandValue(cpuHand), [cpuHand]);
+
+  function computeHandValue(hand) {
+    let total = hand
+      .map((card) => card.value)
+      .reduce((prev, curr) => prev + curr, 0);
+
+    let aces = hand.filter((card) => card.value === 11).length;
+
+    while (total > 21 && aces > 0) {
+      total -= 10;
+      aces -= 1;
+    }
+    return total;
+  }
 
   useEffect(() => {
     if (!didRun.current) {
@@ -35,16 +49,35 @@ export default function GameScreen() {
     //Showdown
     if (gameState === "Showdown" && totalCPUHandValue >= 17) {
       if (totalCPUHandValue > 21) {
-        setGameState("¡You Won");
+        setGameState("¡You Won!");
       } else if (totalPlayerHandValue < totalCPUHandValue) {
         setGameState("¡You Lost!");
       } else if (totalPlayerHandValue > totalCPUHandValue) {
-        setGameState("¡You Won");
+        setGameState("¡You Won!");
+      } else if (totalPlayerHandValue === totalCPUHandValue) {
+        setGameState("¡It's a Tie!");
       }
     } else if (gameState === "Showdown" && totalCPUHandValue < 17) {
       dealCard("CPU");
     }
-  }, [gameState, totalPlayerHandValue, totalCPUHandValue]);
+
+    //First turn BlackJack
+    if (player1Hand.length === 2 && cpuHand.length === 2) {
+      if (totalPlayerHandValue === 21 && totalCPUHandValue === 21) {
+        setGameState("¡It's a Tie!");
+      } else if (totalPlayerHandValue === 21 && totalCPUHandValue != 21) {
+        setGameState("¡You Won!");
+      } else if (totalCPUHandValue === 21 && totalPlayerHandValue != 21) {
+        setGameState("¡You Lost!");
+      }
+    }
+  }, [
+    gameState,
+    totalPlayerHandValue,
+    totalCPUHandValue,
+    player1Hand.length,
+    cpuHand.length,
+  ]);
 
   function getRandomCard() {
     randomCard = Math.floor(Math.random() * cardDeck.length);
